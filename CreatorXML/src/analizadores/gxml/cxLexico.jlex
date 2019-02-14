@@ -1,0 +1,71 @@
+package analizadores.gxml;
+import java_cup.runtime.Symbol;
+
+%%
+%class cxLexico
+%public
+%line
+%char
+%cup
+%unicode
+%ignorecase
+
+%init{
+    yyline = 1;
+%init}
+
+ID              =   [A-Za-z][A-Za-z0-9"_"]*
+ESPACIOS        =   [ \r\n\t\f]
+COMMENT         =   ( "##".*[\n|\r\n] | "#$"( .* | "#".* )"$#" )
+
+%{
+
+    /**
+    * Retorna el simbolo con sym.value
+    * Con la linea, columna y texto de flex
+    */
+    private Symbol symbol(int value){
+        return new Symbol(value, yyline, yychar, yytext());
+    }
+
+    /**
+    * Retorna el simbolo con sym.id y valor asignado
+    * Con la linea, columna de flex
+    */
+    private Symbol symbol(int id, Object value){
+        return new Symbol(id, yyline, yychar, value);
+    }
+%}
+%%
+
+"importar"              { return symbol(sym.pr_importar);      }
+"ventana"               { return symbol(sym.pr_ventana);       }
+
+"id"                    { return symbol(sym.pr_id);            }
+"tipo"                  { return symbol(sym.pr_tipo);          }
+"color"                 { return symbol(sym.pr_color);         }
+"accioninicial"         { return symbol(sym.pr_accioninicial); }
+"accionfinal"           { return symbol(sym.pr_accionfinal);   }
+"x"                     { return symbol(sym.pr_x);             }
+"y"                     { return symbol(sym.pr_y);             }
+"alto"                  { return symbol(sym.pr_alto);          }
+"ancho"                 { return symbol(sym.pr_ancho);         }
+"borde"                 { return symbol(sym.pr_borde);         }
+"nombre"                { return symbol(sym.pr_nombre);        }
+"tam"                   { return symbol(sym.pr_tam);           }
+"negrita"               { return symbol(sym.pr_negrita);       }
+"cursiva"               { return symbol(sym.pr_cursiva);       }
+
+
+"<"                     { return symbol(sym.menor);       }
+"/"                     { return symbol(sym.slash);       }
+">"                     { return symbol(sym.mayor);       }
+
+\n                      { yychar=1; }
+{ID}                    { return symbol(sym.id);          }
+{COMMENT}               {/*Ignorar*/}
+
+{ESPACIOS}              {}
+
+.                       {System.err.println("Este es un error lexico: "+yytext()+", en la linea: "+yyline+", en la columna: "+yychar);}
+
